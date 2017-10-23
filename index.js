@@ -30,6 +30,17 @@ mqtt.on('message', function (topic, message) {
             console.log('Failed to set ID: ' + id + ' to ' + value);
         }
     }
+    else if (topic.substr(-6) === 'switch') {
+        let id = topic.split('/')[1];
+        let value = !boardManager.get(id);
+
+        try {
+            boardManager.set(id, value);
+        }
+        catch (err) {
+            console.log('Failed to set ID: ' + id + ' to ' + value);
+        }
+    }
 });
 
 setTimeout(function() {

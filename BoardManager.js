@@ -51,16 +51,22 @@ class BoardManager extends EventEmitter {
         this.boards[name] = board;
     }
 
-    set (id, value) {
+    id (id) {
+        let result = {};
         let arr = id.split('-');
-        let name = 'local';
+        result.board = arr[0];
+        result.id = arr[1];
+        return result;
+    }
 
-        if (arr.length === 2) {
-            name = arr[0];
-            id = arr[1];
-        }
+    set (id, value) {
+        id = this.id(id);
+        this.boards[id.board].set(id.id, value);
+    }
 
-        this.boards[name].set(id, value);
+    get (id) {
+        id = this.id(id);
+        return this.boards[id.board].get(id.id);
     }
 
     getAll () {
