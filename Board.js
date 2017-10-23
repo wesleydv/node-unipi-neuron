@@ -30,11 +30,18 @@ class Board extends EventEmitter {
         });
     }
 
+    validate (id) {
+        if (this.get(id) === undefined) {
+            throw new SyntaxError('Unknown ID: ' +  id);
+        }
+    }
+
     get (id) {
         return this.data[id];
     }
 
     set (id, value, retries = 0) {
+        this.validate(id);
         let self = this;
 
         let arr = id.split('.');
@@ -46,8 +53,7 @@ class Board extends EventEmitter {
 
         if (retries < 10) {
             setTimeout(function() {
-                let bla = Boolean(self.get(id));
-                if (bla !== value) {
+                if (Boolean(self.get(id)) !== value) {
                     retries++;
                     console.log('Retry (' + retries + ')');
                     self.set(id, value, retries);

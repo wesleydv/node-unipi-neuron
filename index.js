@@ -27,6 +27,7 @@ mqtt.on('message', function (topic, message) {
             boardManager.set(id, value);
         }
         catch (err) {
+            console.log(err.message);
             console.log('Failed to set ID: ' + id + ' to ' + value);
         }
     }
@@ -38,6 +39,7 @@ mqtt.on('message', function (topic, message) {
             boardManager.set(id, value);
         }
         catch (err) {
+            console.log(err.message);
             console.log('Failed to set ID: ' + id + ' to ' + value);
         }
     }
