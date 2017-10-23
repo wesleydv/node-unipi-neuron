@@ -34,13 +34,26 @@ class Board extends EventEmitter {
         return this.data[id];
     }
 
-    set (id, value) {
-        id = id.split('.');
-        let group = id[0].substr(id[0].length - 1, 1);
-        let num = id[1];
+    set (id, value, retries = 0) {
+        let self = this;
+
+        let arr = id.split('.');
+        let group = arr[0].substr(arr[0].length - 1, 1);
+        let num = arr[1];
         let coilId = (group - 1) * 100 + (num - 1);
 
         this.client.writeCoil(coilId, value);
+
+        if (retries < 10) {
+            setTimeout(function() {
+                let bla = Boolean(self.get(id));
+                if (bla !== value) {
+                    retries++;
+                    console.log('Retry (' + retries + ')');
+                    self.set(id, value, retries);
+                }
+            }, (100 * (retries + 1)));
+        }
     }
 
     dec2bin (dec) {
