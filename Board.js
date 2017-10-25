@@ -31,8 +31,8 @@ class Board extends EventEmitter {
 
             // Read board possibilities
             for (let i = 0; i < groups; i++) {
-                // We can read the input and output capabilities of group 1 on register 1001, for group two on 1101 and
-                // so on.
+                // We can read the input and output capabilities of group one on register 1001, for group two on 1101
+                // and so on.
                 let start = 1001 + (i * 100);
                 self.client.readHoldingRegisters(start, 1, function(err, data) {
                     let bin = self.dec2bin(data.data[0]);
