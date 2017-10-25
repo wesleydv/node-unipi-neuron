@@ -1,6 +1,6 @@
 {
   "name": "neuron",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Integrates the UniPi Neuron product line.",
   "main": "index.js",
   "scripts": {
