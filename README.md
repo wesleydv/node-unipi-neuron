@@ -1,8 +1,8 @@
-# Neuron
+# UniPi Neuron
 
-Integrates the UniPi Neuron product line.
+Integrates the UniPi Neuron product line in Node.js.
 
-Neuron integrates the [Unipi](https://www.unipi.technology) Neuron product line in Node.js over Modbus
+UniPi-Neuron integrates the [Unipi](https://www.unipi.technology) Neuron product line in Node.js over Modbus.
 It uses [Modbus Serial](https://github.com/yaacov/node-modbus-serial) to
 connect to the [TCP Modbus server](https://github.com/UniPiTechnology/neuron_tcp_modbus_overlay)
 It can be seen as a lightweight alternative to [EVOK](https://github.com/UniPiTechnology/evok).
@@ -18,7 +18,7 @@ Neuron device or install it on an other computer and connect to it remotely.
 
 ### Compatibility
 
-Neuron can run on all types of Neuron devices (e.g. S103, L203 ...)
+UniPi-Neuron can run on all types of Neuron devices (e.g. S103, L203 ...)
 and connected to any number of extension modules (e.g. xS10, xS40 ...)
 
 **The current implementation is limited to digital inputs and digital outputs/relays.**  
@@ -45,7 +45,7 @@ Each object should contain these properties:
 
 ###### Connect to a local Neuron (S type) 
 ``` javascript
-let BoardManager = require('neuron');
+let BoardManager = require('unipi-neuron');
 
 let config = [{
   name: 'local',

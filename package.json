@@ -1,7 +1,7 @@
 {
-  "name": "neuron",
-  "version": "0.1.0",
-  "description": "Integrates the UniPi Neuron product line.",
+  "name": "unipi-neuron",
+  "version": "0.1.1",
+  "description": "Integrates the UniPi Neuron product line in Node.js.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:wesleydv/node-neuron.git"
+    "url": "git@github.com:wesleydv/node-unipi-neuron.git"
   },
   "keywords": [
     "unipi",
