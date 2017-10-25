@@ -1,7 +1,23 @@
 {
+  "name": "neuron",
+  "version": "1.0.0",
+  "description": "Integrates the UniPi Neuron product line.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "dependencies": {
-    "js-yaml": "^3.10.0",
-    "modbus-serial": "^6.0.1",
-    "mqtt": "^2.13.1"
-  }
+    "modbus-serial": "^6.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "keywords": [
+    "unipi",
+    "modbus",
+    "homeautomation"
+  ],
+  "author": "Wesley De Vrient <wesley@digital54.com>",
+  "license": "ISC"
 }
