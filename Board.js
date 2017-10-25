@@ -2,8 +2,21 @@
 
 let EventEmitter = require('events').EventEmitter;
 
+/**
+ * Represents a single board.
+ */
 class Board extends EventEmitter {
 
+    /**
+     * Create a single board.
+     *
+     * @param client
+     *   A TCP or RTU connection object.
+     * @param id
+     *   The board id to connect to.
+     * @param groups
+     *   The number of groups.
+     */
     constructor (client, id, groups) {
         super();
         this.client = client;
@@ -12,14 +25,18 @@ class Board extends EventEmitter {
 
         let self = this;
 
-        // Read board possibilities
+        // Connect to the board.
         this.client.connect(function () {
             self.client.setID(id);
 
+            // Read board possibilities
             for (let i = 0; i < groups; i++) {
+                // We can read the input and output capabilities of group 1 on register 1001, for group two on 1101 and
+                // so on.
                 let start = 1001 + (i * 100);
                 self.client.readHoldingRegisters(start, 1, function(err, data) {
                     let bin = self.dec2bin(data.data[0]);
+                    // First eight bits are for the input number, second eight bits are for the output number.
                     self.groups[i] = {
                         'id': (i + 1),
                         'di': (parseInt(bin.slice(0, 8), 2)),
@@ -30,16 +47,37 @@ class Board extends EventEmitter {
         });
     }
 
+    /**
+     * Validate that the given id is known to this board.
+     *
+     * @param id
+     *   e.g. local-DO1.1
+     */
     validate (id) {
         if (this.get(id) === undefined) {
             throw new SyntaxError('Unknown ID: ' +  id);
         }
     }
 
+    /**
+     * Get the value of the given io id.
+     *
+     * @param id
+     *   e.g. local-DO1.1
+     */
     get (id) {
         return this.data[id];
     }
 
+    /**
+     * Set an io to the given value
+     *
+     * @param id
+     *   e.g. local-DO1.1
+     * @param {boolean} value
+     * @param {int} retries
+     *   Used internally to check how many retries have been tried.
+     */
     set (id, value, retries = 0) {
         this.validate(id);
         let self = this;
@@ -49,9 +87,12 @@ class Board extends EventEmitter {
         let num = arr[1];
         let coilId = (group - 1) * 100 + (num - 1);
 
+        // Actual write to the board.
         this.client.writeCoil(coilId, value);
 
-        if (retries < 10) {
+        // Writing can sometimes fail, especially on boards connected over a (bad) UART connection. Validating the write
+        // and retrying the write after a small delay mitigates the problem.
+        if (retries < 5) {
             setTimeout(function() {
                 if (Boolean(self.get(id)) !== value) {
                     retries++;
@@ -62,6 +103,12 @@ class Board extends EventEmitter {
         }
     }
 
+    /**
+     * Convert the given decimal value to a 16bit binary string.
+     *
+     * @param dec
+     * @returns {string}
+     */
     dec2bin (dec) {
         // Convert decimal string to binary.
         let bin = parseInt(dec, 10).toString(2);
@@ -69,6 +116,16 @@ class Board extends EventEmitter {
         return ('0000000000000000' + bin.toString()).slice(-16);
     }
 
+    /**
+     * Convert and store the given group array data in the data variable.
+     *
+     * @param prefix
+     *   The io prefix (e.g. DO, DI ...)
+     * @param value
+     *   The value array from readHoldingRegisters
+     * @param length
+     *   The length of the io group, defaults to 16.
+     */
     store (prefix, value, length = 16) {
         let bin = this.dec2bin(value);
 
@@ -88,6 +145,9 @@ class Board extends EventEmitter {
         }
     }
 
+    /**
+     * Update the board io values by reading the holding registers.
+     */
     update () {
         let self = this;
 
