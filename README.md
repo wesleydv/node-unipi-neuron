@@ -63,12 +63,12 @@ boardManager.on('update', function (id, value) {
 });
 
 setTimeout(function() {
-  console.log(boardManager.getAll());
+  console.log(boardManager.getAllStates());
 }, 1000);
 
 setTimeout(function() {
   let id = 'local-DO1.1';
-  let value = boardManager.get(id);
+  let value = boardManager.getState(id);
   console.log(value);
   boardManager.set(id, !value);
 }, 2000);

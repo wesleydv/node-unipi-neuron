@@ -65,10 +65,15 @@ class BoardManager extends EventEmitter {
         // Create a new board
         let board = new Board(connection, id, config.groups);
 
-        // Update the board values according to the config interval.
+        // Update the board state according to the config interval.
         setInterval(function() {
-            board.update();
+            board.updateState();
         }, config.interval);
+
+        // Update the board count according to the config interval (times five).
+        setInterval(function() {
+            board.updateCount();
+        }, (config.interval * 5));
 
         // Forward the board update event.
         board.on('update', function (id, value) {
@@ -112,9 +117,20 @@ class BoardManager extends EventEmitter {
      * @param id
      *   e.g. local-DO1.1
      */
-    get (id) {
+    getState (id) {
         id = this.id(id);
-        return this.boards[id.board].get(id.id);
+        return this.boards[id.board].getState(id.id);
+    }
+
+    /**
+     * Get the value of the given io id.
+     *
+     * @param id
+     *   e.g. local-DI1.1
+     */
+    getCount (id) {
+        id = this.id(id);
+        return this.boards[id.board].getCount(id.id);
     }
 
     /**
@@ -122,13 +138,32 @@ class BoardManager extends EventEmitter {
      *
      * @returns {{}}
      */
-    getAll () {
+    getAllStates () {
         let data = {};
         for (let name in this.boards) {
             if (this.boards.hasOwnProperty(name)) {
-                for (let id in this.boards[name].data) {
-                    if (this.boards[name].data.hasOwnProperty(id)) {
-                        data[name + '-' + id] = this.boards[name].data[id];
+                for (let id in this.boards[name].state) {
+                    if (this.boards[name].state.hasOwnProperty(id)) {
+                        data[name + '-' + id] = this.boards[name].state[id];
+                    }
+                }
+            }
+        }
+        return data;
+    }
+
+    /**
+     * Gets all io's in all initiated boards.
+     *
+     * @returns {{}}
+     */
+    getAllCounts () {
+        let data = {};
+        for (let name in this.boards) {
+            if (this.boards.hasOwnProperty(name)) {
+                for (let id in this.boards[name].counter) {
+                    if (this.boards[name].counter.hasOwnProperty(id)) {
+                        data[name + '-' + id] = this.boards[name].counter[id];
                     }
                 }
             }

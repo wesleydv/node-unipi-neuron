@@ -20,7 +20,8 @@ class Board extends EventEmitter {
     constructor (client, id, groups) {
         super();
         this.client = client;
-        this.data = {};
+        this.state = {};
+        this.counter = {};
         this.groups = [];
 
         let self = this;
@@ -63,10 +64,20 @@ class Board extends EventEmitter {
      * Get the value of the given io id.
      *
      * @param id
-     *   e.g. local-DO1.1
+     *   e.g. DO1.1
      */
-    get (id) {
-        return this.data[id];
+    getState (id) {
+        return this.state[id];
+    }
+
+    /**
+     * Get the value of the given DI id.
+     *
+     * @param id
+     *   e.g. DI1.1
+     */
+    getCount (id) {
+        return this.counter[id];
     }
 
     /**
@@ -126,7 +137,7 @@ class Board extends EventEmitter {
      * @param length
      *   The length of the io group, defaults to 16.
      */
-    store (prefix, value, length = 16) {
+    storeState (prefix, value, length = 16) {
         let bin = this.dec2bin(value);
 
         // Convert to an array and reverse the values (first bit -> first value)
@@ -135,32 +146,54 @@ class Board extends EventEmitter {
         for (let i = 0; i < length; i++) {
             let id = prefix + '.' + (i + 1);
             let value = parseInt(arr[i]);
-            let currentValue = this.get(id);
+            let currentValue = this.getState(id);
             if (currentValue !== value) {
                 if (currentValue !== undefined) {
                     this.emit('update', id, value.toString());
                 }
-                this.data[id] = value;
+                this.state[id] = value;
             }
         }
     }
 
     /**
-     * Update the board io values by reading the holding registers.
+     * Update the board io states by reading the holding registers.
      */
-    update () {
+    updateState () {
         let self = this;
 
         for (let i = 0; i < this.groups.length; i++) {
             let group = this.groups[i];
             let start = (group.id - 1) * 100;
-            this.client.readHoldingRegisters(start, 2, function(err, data) {
+            // Read DI and DO states
+            this.client.readHoldingRegisters(start, 2, function (err, data) {
                 if (err) {
                     console.log(err);
                 }
                 else {
-                    self.store('DI' + group.id, data.data[0], group.di);
-                    self.store('DO' + group.id, data.data[1], group.do);
+                    self.storeState('DI' + group.id, data.data[0], group.di);
+                    self.storeState('DO' + group.id, data.data[1], group.do);
+                }
+            });
+        }
+    }
+
+    /**
+     * Update the board io states by reading the holding registers.
+     */
+    updateCount () {
+        let self = this;
+        // Look for a better way of determining these.
+        let countStart = [8, 103, 203];
+
+        for (let i = 0; i < this.groups.length; i++) {
+            let group = this.groups[i];
+            // Read DI counters
+            this.client.readHoldingRegisters(countStart[i], (group.di * 2), function(err, data) {
+                for (let j = 0; j < group.di; j++) {
+                    let id = 'DI' + group.id + '.' + (j + 1);
+                    // Counters are stored over two words.
+                    self.counter[id] = data.data[j * 2] + data.data[j * 2 + 1];
                 }
             });
         }
