@@ -55,7 +55,7 @@ class Board extends EventEmitter {
      *   e.g. local-DO1.1
      */
     validate (id) {
-        if (this.get(id) === undefined) {
+        if (this.getState(id) === undefined) {
             throw new SyntaxError('Unknown ID: ' +  id);
         }
     }
@@ -105,7 +105,7 @@ class Board extends EventEmitter {
         // and retrying the write after a small delay mitigates the problem.
         if (retries < 5) {
             setTimeout(function() {
-                if (Boolean(self.get(id)) !== value) {
+                if (Boolean(self.getState(id)) !== value) {
                     retries++;
                     console.log('Retry (' + retries + ')');
                     self.set(id, value, retries);
