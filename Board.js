@@ -148,10 +148,10 @@ class Board extends EventEmitter {
             let value = parseInt(arr[i]);
             let currentValue = this.getState(id);
             if (currentValue !== value) {
+                this.state[id] = value;
                 if (currentValue !== undefined) {
                     this.emit('update', id, value.toString());
                 }
-                this.state[id] = value;
             }
         }
     }
