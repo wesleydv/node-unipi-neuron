@@ -35,13 +35,18 @@ class Board extends EventEmitter {
                 // We can read the input and output capabilities of group one on register 1001, for group two on 1101
                 // and so on.
                 let start = 1001 + (i * 100);
-                self.client.readHoldingRegisters(start, 1, function(err, data) {
+                self.client.readHoldingRegisters(start, 2, function(err, data) {
                     let bin = self.dec2bin(data.data[0]);
-                    // First eight bits are for the input number, second eight bits are for the output number.
+                    let ext = self.dec2bin(data.data[1]);
+                    // On first register adress : first eight bits are for the input number, second eight bits are for the output number.
+                    // On second register address : first four bits are for the serial port number, second four bits are for the analog input number, third eight bits are for the analog output number.
                     self.groups[i] = {
                         'id': (i + 1),
                         'di': (parseInt(bin.slice(0, 8), 2)),
                         'do': (parseInt(bin.slice(8, 16), 2)),
+                        'ai': (parseInt(ext.slice(4, 8), 2)),
+                        'ao': (parseInt(ext.slice(8, 16), 2)),
+                        'serial': (parseInt(ext.slice(0, 4), 2)),
                     };
                 });
             }
