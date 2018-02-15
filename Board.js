@@ -36,6 +36,7 @@ class Board extends EventEmitter {
                 // and so on.
                 let start = 1001 + (i * 100);
                 self.client.readHoldingRegisters(start, 2, function(err, data) {
+                    if (err) throw err;
                     let bin = self.dec2bin(data.data[0]);
                     let ext = self.dec2bin(data.data[1]);
                     // On first register adress : first eight bits are for the input number, second eight bits are for the output number.
