@@ -1,9 +1,15 @@
 "use strict";
 
-let EventEmitter = require("events").EventEmitter;
-let Board        = require("./Board");
-let RtuConnection = require("./RtuConnection");
-let TcpConnection = require("./TcpConnection");
+const EventEmitter = require("events").EventEmitter;
+const Board = require("./Board");
+const RtuConnection = require("./RtuConnection");
+const TcpConnection = require("./TcpConnection");
+
+const debug = require('debug');
+const info = debug('unipi-neuron:boards:info');
+const warn = debug('unipi-neuron:boards:warn');
+const log = debug('unipi-neuron:boards:log');
+const error = debug('unipi-neuron:boards:error');
 
 /**
  * The board managers initiates boards based on the given config.
@@ -24,7 +30,7 @@ class BoardManager extends EventEmitter {
      *     - groups: 3 (Normally 1 for S type and extension boards, 2 for M type boards and 3 for L type boards)
      *     - interval: 100 (The interval in milliseconds at which to update the board values)
      */
-    constructor (config) {
+    constructor(config) {
         super();
         this.boards = {};
 
@@ -40,7 +46,6 @@ class BoardManager extends EventEmitter {
      *   A single object from the constructor config array.
      */
     init(config) {
-        let self = this;
         let name = 'local';
         let id = 0;
         let connection = {};
@@ -66,18 +71,18 @@ class BoardManager extends EventEmitter {
         let board = new Board(connection, id, config.groups);
 
         // Update the board state according to the config interval.
-        setInterval(function() {
+        setInterval(() => {
             board.updateState();
         }, config.interval);
 
         // Update the board count according to the config interval (times five).
-        setInterval(function() {
+        setInterval(() => {
             board.updateCount();
         }, (config.interval * 5));
 
         // Forward the board update event.
-        board.on('update', function (id, value) {
-            self.emit('update', name + '-' + id, value);
+        board.on('update', (id, value) => {
+            this.emit('update', name + '-' + id, value);
         });
 
         // Add the board to the boards variable for later reference.
@@ -91,7 +96,7 @@ class BoardManager extends EventEmitter {
      *   e.g. local-DO1.1
      * @returns {{}}
      */
-    id (id) {
+    id(id) {
         let result = {};
         let arr = id.split('-');
         result.board = arr[0];
@@ -106,7 +111,7 @@ class BoardManager extends EventEmitter {
      *   e.g. local-DO1.1
      * @param {boolean} value
      */
-    set (id, value) {
+    set(id, value) {
         id = this.id(id);
         this.boards[id.board].set(id.id, value);
     }
@@ -117,7 +122,7 @@ class BoardManager extends EventEmitter {
      * @param id
      *   e.g. local-DO1.1
      */
-    getState (id) {
+    getState(id) {
         id = this.id(id);
         return this.boards[id.board].getState(id.id);
     }
@@ -128,7 +133,7 @@ class BoardManager extends EventEmitter {
      * @param id
      *   e.g. local-DI1.1
      */
-    getCount (id) {
+    getCount(id) {
         id = this.id(id);
         return this.boards[id.board].getCount(id.id);
     }
@@ -138,7 +143,7 @@ class BoardManager extends EventEmitter {
      *
      * @returns {{}}
      */
-    getAllStates () {
+    getAllStates() {
         let data = {};
         for (let name in this.boards) {
             if (this.boards.hasOwnProperty(name)) {
@@ -157,7 +162,7 @@ class BoardManager extends EventEmitter {
      *
      * @returns {{}}
      */
-    getAllCounts () {
+    getAllCounts() {
         let data = {};
         for (let name in this.boards) {
             if (this.boards.hasOwnProperty(name)) {
